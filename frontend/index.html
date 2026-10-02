@@ -6,13 +6,15 @@
   <title>Outdoor Safety Agent</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #131418;
+      --card-bg: #1e1f26;
+      --input-bg: #212228;
+      --card-border: #2d2f39;
+      --text-main: #f1f2f6;
+      --text-muted: #9aa0a6;
       --accent: #38bdf8;
-      --accent-hover: #0284c7;
+      --accent-hover: #0ea5e9;
+      --user-bubble: #2b2c34;
       --extreme: #ef4444;
       --high: #f97316;
       --moderate: #eab308;
@@ -21,23 +23,30 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text-main);
       display: flex;
       flex-direction: column;
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
     }
 
+    /* Top Navigation Bar */
     header {
-      background: var(--card-bg);
+      background: rgba(19, 20, 24, 0.95);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--card-border);
       padding: 12px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      width: 100%;
+      height: 58px;
+      z-index: 10;
     }
 
     .brand {
@@ -46,46 +55,159 @@
       gap: 12px;
     }
 
+    .brand-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
     .brand h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .brand span {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      font-size: 0.75rem;
+      font-size: 1.05rem;
       font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      letter-spacing: -0.01em;
+      color: #fff;
     }
 
-    .session-tag {
+    .brand .tag {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .new-chat-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .new-chat-btn:hover {
+      background: #2b2d38;
+      border-color: #4b4f5f;
+    }
+
+    /* Main Chat Stream Container (Full Width) */
+    main {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 920px;
+      padding: 24px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Empty Welcome Screen (ChatGPT Style) */
+    .hero-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin: auto 0;
+      padding: 40px 16px;
+      max-width: 720px;
+    }
+
+    .hero-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      background: rgba(56, 189, 248, 0.1);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .hero-welcome h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .hero-welcome p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    .starter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      width: 100%;
+    }
+
+    .starter-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .starter-card:hover {
+      background: #252732;
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .starter-card .card-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .starter-card .card-desc {
       font-size: 0.8rem;
       color: var(--text-muted);
     }
 
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
+    /* Message Bubbles */
+    .message-row {
       display: flex;
-      flex-direction: column;
-      gap: 18px;
-      max-width: 900px;
       width: 100%;
-      margin: 0 auto;
-    }
-
-    .message-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px 20px;
-      border-radius: 12px;
-      animation: fadeIn 0.2s ease-in;
+      animation: fadeIn 0.22s ease-out;
     }
 
     @keyframes fadeIn {
@@ -93,46 +215,58 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .user-msg {
-      align-self: flex-end;
-      background: #2563eb;
-      color: white;
-      max-width: 75%;
-      border-radius: 14px 14px 2px 14px;
+    .user-row {
+      justify-content: flex-end;
+    }
+
+    .user-bubble {
+      background: var(--user-bubble);
+      border: 1px solid #3c3e4a;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 20px 20px 4px 20px;
+      max-width: 80%;
       font-size: 0.95rem;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .bot-row {
+      justify-content: flex-start;
     }
 
     .bot-card {
-      align-self: flex-start;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      max-width: 85%;
-      border-radius: 14px 14px 14px 2px;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
 
-    .weather-strip {
+    .bot-header {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      background: rgba(15, 23, 42, 0.6);
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 0.82rem;
-      color: var(--text-muted);
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .weather-item {
+    .bot-identity {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
     }
 
-    .weather-item strong {
-      color: var(--text-main);
-    }
-
-    .badge-bar {
+    .bot-badges {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -142,10 +276,10 @@
     .severity-badge {
       font-size: 0.72rem;
       font-weight: 700;
-      padding: 4px 10px;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
       border-radius: 6px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .sev-extreme, .sev-critical { background: rgba(239, 68, 68, 0.2); color: var(--extreme); border: 1px solid var(--extreme); }
@@ -156,176 +290,332 @@
 
     .sop-pill {
       font-size: 0.75rem;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.12);
       color: var(--accent);
-      padding: 3px 8px;
+      padding: 3px 9px;
       border-radius: 6px;
-      font-family: monospace;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      border: 1px solid rgba(56, 189, 248, 0.25);
     }
 
+    /* Weather Strip */
+    .weather-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: #14151b;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    .weather-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .weather-item strong {
+      color: #fff;
+    }
+
+    .weather-divider {
+      color: #3b3e4a;
+    }
+
+    /* Response Body formatted in points */
     .response-body {
       font-size: 0.95rem;
-      line-height: 1.6;
+      line-height: 1.65;
       white-space: pre-wrap;
       word-break: break-word;
+      color: #e2e8f0;
     }
 
-    details {
+    .response-body strong {
+      color: #fff;
+    }
+
+    /* Decision Trace Accordion */
+    details.trace-details {
       margin-top: 6px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #14151a;
     }
 
-    summary {
+    details.trace-details summary {
+      padding: 10px 14px;
       cursor: pointer;
       color: var(--text-muted);
       user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transition: color 0.15s;
     }
 
-    summary:hover {
+    details.trace-details summary:hover {
       color: var(--accent);
     }
 
-    pre {
-      background: #090d16;
-      border: 1px solid var(--card-border);
-      padding: 10px;
-      border-radius: 6px;
-      overflow-x: auto;
-      margin-top: 8px;
+    details.trace-details pre {
+      background: #0b0c10;
+      padding: 14px;
       color: #38bdf8;
-      font-size: 0.75rem;
-      max-height: 250px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      max-height: 280px;
+      border-top: 1px solid var(--card-border);
     }
 
-    .quick-prompts {
+    /* Footer & Floating Input Area */
+    footer {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(19, 20, 24, 0) 0%, rgba(19, 20, 24, 0.95) 30%, #131418 100%);
+      padding: 10px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .quick-prompts-bar {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding: 4px 24px;
-      max-width: 900px;
       width: 100%;
-      margin: 0 auto;
+      max-width: 920px;
+      padding-bottom: 10px;
+      scrollbar-width: none;
     }
 
+    .quick-prompts-bar::-webkit-scrollbar { display: none; }
+
     .prompt-chip {
-      background: var(--card-bg);
+      background: rgba(30, 31, 38, 0.85);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
       font-size: 0.78rem;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 9999px;
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.15s;
+      flex-shrink: 0;
     }
 
     .prompt-chip:hover {
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
-      border-color: var(--accent);
+      border-color: rgba(56, 189, 248, 0.4);
     }
 
-    footer {
-      padding: 14px 24px 20px;
-      background: var(--card-bg);
-      border-top: 1px solid var(--card-border);
-    }
-
-    .input-bar {
+    .input-wrapper {
+      width: 100%;
+      max-width: 920px;
+      position: relative;
+      background: var(--input-bg);
+      border: 1px solid #323540;
+      border-radius: 26px;
+      padding: 8px 12px 8px 20px;
       display: flex;
-      gap: 12px;
-      max-width: 900px;
-      margin: 0 auto;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    input[type="text"] {
+    .input-wrapper:focus-within {
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 4px 28px rgba(56, 189, 248, 0.15);
+    }
+
+    .input-wrapper input[type="text"] {
       flex: 1;
-      background: #090d16;
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 12px 16px;
-      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: #fff;
       font-size: 0.95rem;
       outline: none;
-      transition: border-color 0.15s;
+      font-family: inherit;
     }
 
-    input[type="text"]:focus {
-      border-color: var(--accent);
+    .input-wrapper input[type="text"]::placeholder {
+      color: #6a6f7d;
     }
 
-    button {
-      background: var(--accent);
-      color: #04101e;
+    .send-button {
+      background: #38bdf8;
+      color: #081523;
       border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: transform 0.12s, background 0.15s;
+      flex-shrink: 0;
     }
 
-    button:hover {
-      background: var(--accent-hover);
+    .send-button:hover {
+      background: #7dd3fc;
+      transform: scale(1.04);
     }
 
-    .loading-dots span {
-      animation: blink 1.4s infinite both;
-      font-size: 1.4rem;
-      line-height: 1;
+    .send-button:disabled {
+      background: #2b2e38;
+      color: #555968;
+      cursor: not-allowed;
+      transform: none;
     }
-    .loading-dots span:nth-child(2) { animation-delay: .2s; }
-    .loading-dots span:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink {
-      0% { opacity: .2; }
-      20% { opacity: 1; }
-      100% { opacity: .2; }
+
+    .send-button svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .disclaimer {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* Loading Pulse Animation */
+    .loading-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 16px 20px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(56, 189, 248, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
     <div class="brand">
+      <span class="brand-icon">🌦️</span>
       <h1>Outdoor Safety Agent</h1>
-      <span>Live SOP Engine</span>
+      <span class="tag">26 Safety SOPs • Live Weather</span>
     </div>
-    <div class="session-tag" id="session-tag">Session: <strong id="session-id"></strong></div>
+    <div class="header-actions">
+      <button class="new-chat-btn" onclick="startNewChat()">
+        <span>+</span> New Chat
+      </button>
+    </div>
   </header>
 
+  <!-- Main Chat Stream -->
   <main id="chat-stream">
-    <div class="message-card bot-card">
-      <div class="response-body">
-        Welcome to the <strong>Outdoor Safety Agent</strong>. I evaluate outdoor activity safety questions against verified live weather and 25 deterministic Standard Operating Procedures (SOPs).
-        <br><br>
-        Ask me about cycling, hiking, jogging, picnics, or travel in any city!
+    <div class="chat-container" id="chat-container">
+      
+      <!-- Welcome Hero (shown when stream is empty) -->
+      <div class="hero-welcome" id="hero-welcome">
+        <div class="hero-icon">🌦️</div>
+        <h2>Outdoor Safety Advisor</h2>
+        <p>
+          Ask about cycling, hiking, jogging, picnics, or travel in any city. 
+          Every query is deterministically cross-referenced against live meteorological data and 26 safety Standard Operating Procedures (SOPs).
+        </p>
+
+        <div class="starter-grid">
+          <div class="starter-card" onclick="sendPrompt('Can I ride bike in Bhopal today?')">
+            <div class="card-title">🚴 Cycling in Bhopal</div>
+            <div class="card-desc">Evaluates wind, precipitation, and thermal safety limits.</div>
+          </div>
+          <div class="starter-card" onclick="sendPrompt('Is today good for a picnic in Bengaluru?')">
+            <div class="card-title">🧺 Picnic in Bengaluru</div>
+            <div class="card-desc">Checks golden window conditions for open-air lawn leisure.</div>
+          </div>
+          <div class="starter-card" onclick="sendPrompt('Can I go for a 10k run in Delhi afternoon heat?')">
+            <div class="card-title">🏃 Running in Heat</div>
+            <div class="card-desc">Tests cardiovascular risk against heatwave emergency SOPs.</div>
+          </div>
+          <div class="starter-card" onclick="sendPrompt('Is it safe to drive on the expressway in dense fog?')">
+            <div class="card-title">🚗 Expressway Fog Travel</div>
+            <div class="card-desc">Validates highway fog visibility collision protocols.</div>
+          </div>
+        </div>
       </div>
+
     </div>
   </main>
 
-  <div class="quick-prompts">
-    <div class="prompt-chip" onclick="sendPrompt('Can I cycle in Bhopal today?')">🚴 Can I cycle in Bhopal today?</div>
-    <div class="prompt-chip" onclick="sendPrompt('Is today good for a picnic in Delhi?')">🧺 Picnic in Delhi?</div>
-    <div class="prompt-chip" onclick="sendPrompt('Can I jog in 38°C afternoon heat?')">🏃 Jogging in extreme heat?</div>
-    <div class="prompt-chip" onclick="sendPrompt('What about this evening instead?')">🕒 What about this evening?</div>
-  </div>
-
+  <!-- Floating Footer & Input Bar -->
   <footer>
-    <form class="input-bar" id="chat-form" onsubmit="handleSend(event)">
-      <input type="text" id="query-input" placeholder="Ask about activity safety (e.g. Can I bike to work in Bhopal?)..." autocomplete="off" />
-      <button type="submit" id="send-btn">Ask Agent</button>
+    <div class="quick-prompts-bar">
+      <div class="prompt-chip" onclick="sendPrompt('Can I cycle in Bhopal today?')">🚴 Cycling in Bhopal</div>
+      <div class="prompt-chip" onclick="sendPrompt('Is today good for a picnic in Bengaluru?')">🧺 Picnic in Bengaluru</div>
+      <div class="prompt-chip" onclick="sendPrompt('Can I jog in extreme heat in Delhi?')">🏃 Heatwave Jogging</div>
+      <div class="prompt-chip" onclick="sendPrompt('Can I cycle in Chennai squall winds?')">💨 Chennai Squalls</div>
+      <div class="prompt-chip" onclick="sendPrompt('What about this evening instead?')">🕒 What about this evening?</div>
+    </div>
+
+    <form class="input-wrapper" id="chat-form" onsubmit="handleSend(event)">
+      <input 
+        type="text" 
+        id="query-input" 
+        placeholder="Message Outdoor Safety Agent (e.g. Can I cycle to work in Bhopal?)..." 
+        autocomplete="off" 
+      />
+      <button type="submit" class="send-button" id="send-btn" title="Send message">
+        <svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
     </form>
+
+    <div class="disclaimer">
+      Outdoor Safety Agent answers using live Open-Meteo, OpenWeather, and WeatherAPI data and 26 deterministic SOPs.
+    </div>
   </footer>
 
   <script>
-    const sessionId = "sess_" + Math.random().toString(36).substring(2, 9);
-    document.getElementById("session-id").textContent = sessionId;
+    let currentSessionId = "sess_" + Math.random().toString(36).substring(2, 9);
 
+    const chatContainer = document.getElementById("chat-container");
     const chatStream = document.getElementById("chat-stream");
+    const heroWelcome = document.getElementById("hero-welcome");
     const queryInput = document.getElementById("query-input");
     const sendBtn = document.getElementById("send-btn");
+
+    function startNewChat() {
+      currentSessionId = "sess_" + Math.random().toString(36).substring(2, 9);
+      // Remove all message rows except hero
+      const rows = chatContainer.querySelectorAll(".message-row");
+      rows.forEach(r => r.remove());
+      if (heroWelcome) {
+        heroWelcome.style.display = "flex";
+      }
+      queryInput.value = "";
+      queryInput.focus();
+    }
 
     function sendPrompt(text) {
       queryInput.value = text;
@@ -337,78 +627,97 @@
       const query = queryInput.value.trim();
       if (!query) return;
 
-      // Add user message
+      // Hide welcome hero on first message
+      if (heroWelcome) {
+        heroWelcome.style.display = "none";
+      }
+
+      // 1. Append User Message
       appendUserMessage(query);
       queryInput.value = "";
       queryInput.disabled = true;
       sendBtn.disabled = true;
 
-      // Add loading card
-      const loadingCard = appendLoadingCard();
+      // 2. Append Loading Indicator
+      const loadingRow = appendLoadingRow();
+      scrollToBottom();
 
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: query, session_id: sessionId })
+          body: JSON.stringify({ message: query, session_id: currentSessionId }),
         });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error ${res.status}`);
+        }
+
         const data = await res.json();
-        chatStream.removeChild(loadingCard);
+        loadingRow.remove();
         appendBotCard(data);
       } catch (err) {
-        chatStream.removeChild(loadingCard);
+        loadingRow.remove();
         appendBotCard({
-          response: "Error connecting to Outdoor Safety Agent server: " + err.message,
+          response: `Error: Unable to connect to safety engine (${err.message}). Please verify the backend service is running.`,
           safety_status: "BLOCKED",
-          weather: null,
-          selected_sop: null
         });
       } finally {
         queryInput.disabled = false;
         sendBtn.disabled = false;
         queryInput.focus();
+        scrollToBottom();
       }
     }
 
     function appendUserMessage(text) {
-      const card = document.createElement("div");
-      card.className = "message-card user-msg";
-      card.textContent = text;
-      chatStream.appendChild(card);
-      chatStream.scrollTop = chatStream.scrollHeight;
+      const row = document.createElement("div");
+      row.className = "message-row user-row";
+      row.innerHTML = `<div class="user-bubble">${escapeHtml(text)}</div>`;
+      chatContainer.appendChild(row);
     }
 
-    function appendLoadingCard() {
-      const card = document.createElement("div");
-      card.className = "message-card bot-card loading-dots";
-      card.innerHTML = "Consulting live weather & SOP policies <span>.</span><span>.</span><span>.</span>";
-      chatStream.appendChild(card);
-      chatStream.scrollTop = chatStream.scrollHeight;
-      return card;
+    function appendLoadingRow() {
+      const row = document.createElement("div");
+      row.className = "message-row bot-row";
+      row.innerHTML = `
+        <div class="bot-card loading-card">
+          <div class="spinner"></div>
+          <div>Consulting live weather & deterministic Safety SOPs...</div>
+        </div>
+      `;
+      chatContainer.appendChild(row);
+      return row;
     }
 
     function appendBotCard(data) {
-      const card = document.createElement("div");
-      card.className = "message-card bot-card";
+      const row = document.createElement("div");
+      row.className = "message-row bot-row";
 
-      // Weather metrics strip
+      const card = document.createElement("div");
+      card.className = "bot-card";
+
+      // 1. Weather Strip
       let weatherHtml = "";
       if (data.weather) {
         const w = data.weather;
         const items = [];
-        if (w.temperature_2m != null) items.push(`<span class="weather-item">Temp: <strong>${w.temperature_2m}°C</strong></span>`);
-        if (w.wind_speed_10m != null) items.push(`<span class="weather-item">Wind: <strong>${w.wind_speed_10m} km/h</strong></span>`);
-        if (w.wind_gusts_10m != null) items.push(`<span class="weather-item">Gusts: <strong>${w.wind_gusts_10m} km/h</strong></span>`);
-        if (w.precipitation != null) items.push(`<span class="weather-item">Precip: <strong>${w.precipitation} mm</strong></span>`);
-        if (w.uv_index != null) items.push(`<span class="weather-item">UV: <strong>${w.uv_index}</strong></span>`);
+        if (w.temperature_2m != null) items.push(`<span class="weather-item">🌡️ Temp: <strong>${w.temperature_2m}°C</strong></span>`);
+        if (w.wind_speed_10m != null) items.push(`<span class="weather-item">💨 Wind: <strong>${w.wind_speed_10m} km/h</strong></span>`);
+        if (w.wind_gusts_10m != null) items.push(`<span class="weather-item">⚡ Gusts: <strong>${w.wind_gusts_10m} km/h</strong></span>`);
+        if (w.precipitation != null) items.push(`<span class="weather-item">🌧️ Precip: <strong>${w.precipitation} mm</strong></span>`);
+        if (w.uv_index != null) items.push(`<span class="weather-item">☀️ UV: <strong>${w.uv_index}</strong></span>`);
+        if (w.visibility != null) items.push(`<span class="weather-item">👁️ Visibility: <strong>${(w.visibility/1000).toFixed(1)} km</strong></span>`);
         if (items.length > 0) {
-          weatherHtml = `<div class="weather-strip">${items.join(" &bull; ")}</div>`;
+          weatherHtml = `<div class="weather-strip">${items.join('<span class="weather-divider">•</span>')}</div>`;
         }
       }
 
-      // Badges
-      const sevClass = "sev-" + (data.selected_sop?.severity || data.safety_status || "low").toLowerCase();
+      // 2. Badges & Header
+      const rawSev = (data.selected_sop?.severity || data.safety_status || "APPROVED").toLowerCase();
+      const sevClass = "sev-" + rawSev;
       const sevText = data.selected_sop?.severity || data.safety_status || "APPROVED";
+      
       let sopBadges = "";
       if (data.selected_sop) {
         sopBadges = `<span class="sop-pill">Selected: ${data.selected_sop.id}</span>`;
@@ -420,11 +729,11 @@
         }
       }
 
-      // Trace details
+      // 3. Decision Trace
       let traceHtml = "";
       if (data.decision_trace) {
         traceHtml = `
-          <details>
+          <details class="trace-details">
             <summary>🔍 View Machine-Readable Decision Trace</summary>
             <pre>${escapeHtml(JSON.stringify(data.decision_trace, null, 2))}</pre>
           </details>
@@ -432,16 +741,26 @@
       }
 
       card.innerHTML = `
-        ${weatherHtml}
-        <div class="badge-bar">
-          <span class="severity-badge ${sevClass}">${sevText}</span>
-          ${sopBadges}
+        <div class="bot-header">
+          <div class="bot-identity">
+            <span>🌦️</span> Outdoor Safety Agent
+          </div>
+          <div class="bot-badges">
+            <span class="severity-badge ${sevClass}">${sevText}</span>
+            ${sopBadges}
+          </div>
         </div>
+        ${weatherHtml}
         <div class="response-body">${formatResponse(data.response)}</div>
         ${traceHtml}
       `;
 
-      chatStream.appendChild(card);
+      row.appendChild(card);
+      chatContainer.appendChild(row);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
       chatStream.scrollTop = chatStream.scrollHeight;
     }
 
