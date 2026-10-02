@@ -1,7 +1,7 @@
 id: HAZ-001
 version: 1.0.0
 status: active
-title: IMD Well-Marked Low Pressure Heavy Rainfall System Alert
+title: "Severe Compound Weather: Heavy Rainfall and Squall Gale Alert"
 category: hazards
 activities:
   - all
@@ -33,16 +33,16 @@ decision: >-
   Cancel all non-essential outdoor activities immediately due to an active heavy rainfall system.
   Seek sturdy indoor shelter and avoid low-lying roads, underpasses, and flood-prone drainage paths.
 rationale: >-
-  Active monsoon low-pressure depressions bring localized torrential downpours exceeding municipal drainage
-  capacities, rapidly creating flash waterlogging, structural collapse risks, and zero-traction road conditions.
+  Severe compound weather combining localized torrential downpours exceeding drainage capacities with squally
+  wind gusts rapidly creates flash waterlogging, flying debris hazards, and hazardous road traction conditions.
 tags:
-  - monsoon
-  - depression
+  - compound-hazard
+  - severe-storm
   - flood
   - extreme-rain
 overrides:
   - CYC-002
   - TRV-001
   - REC-001
-source: IMD Monsoon Standard Operating Procedure & Severe Weather Protocol
+source: Severe Weather Standard Operating Procedure & Compound Hazard Safety Guidelines
 effective_from: "2024-01-01"

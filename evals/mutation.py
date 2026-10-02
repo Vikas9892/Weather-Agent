@@ -12,6 +12,7 @@ if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
 from app.graph.graph import SafetyAgentGraph
+from app.llm.gateway import LLMGateway
 from app.weather.gateway import WeatherGateway
 from app.weather.models import Location, WeatherState
 from evals.fixtures.replay_fixtures import REPLAY_FIXTURES
@@ -35,7 +36,7 @@ def run_mutation_test():
     try:
         # Step 1: Baseline check with original policy (wind 42.0 km/h triggers CYC-001)
         gw = WeatherGateway()
-        agent_baseline = SafetyAgentGraph(weather_gateway=gw)
+        agent_baseline = SafetyAgentGraph(weather_gateway=gw, llm_gateway=LLMGateway(use_deterministic_only=True))
         gw.set_mock_location(Location.model_validate(REPLAY_FIXTURES["high_wind_crosswind"]["location"]))
         gw.set_mock_weather(WeatherState.model_validate(REPLAY_FIXTURES["high_wind_crosswind"]["weather"]))
 
@@ -50,7 +51,7 @@ def run_mutation_test():
             f.write(mutated_content)
 
         # Step 3: Run with mutated policy
-        agent_mutated = SafetyAgentGraph(weather_gateway=gw)
+        agent_mutated = SafetyAgentGraph(weather_gateway=gw, llm_gateway=LLMGateway(use_deterministic_only=True))
         res_mutated = agent_mutated.run("Can I cycle in Chennai?")
         sel_mutated = (res_mutated.get("selected_sop") or {}).get("id")
 

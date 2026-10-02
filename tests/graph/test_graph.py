@@ -5,11 +5,15 @@ from app.weather.models import Location, WeatherState, WeatherStatus
 from app.memory.session import SessionMemoryStore
 
 
+from app.llm.gateway import LLMGateway
+
+
 @pytest.fixture
 def test_graph():
     gw = WeatherGateway()
     mem = SessionMemoryStore()
-    return SafetyAgentGraph(weather_gateway=gw, memory=mem)
+    eval_llm = LLMGateway(use_deterministic_only=True)
+    return SafetyAgentGraph(weather_gateway=gw, memory=mem, llm_gateway=eval_llm)
 
 
 def test_graph_success_flow_cycling_wind(test_graph):

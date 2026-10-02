@@ -13,8 +13,10 @@ logger = logging.getLogger(__name__)
 
 class WeatherGateway:
     """
-    Multi-provider weather gateway managing Open-Meteo, OpenWeatherMap, and WeatherAPI.com.
-    Executes primary retrieval and multi-provider consensus / disagreement checks.
+    Authoritative weather gateway with Open-Meteo as the mandatory primary provider.
+    The system remains fully functional using Open-Meteo alone (zero API key requirement).
+    OpenWeatherMap and WeatherAPI.com are optional secondary providers used strictly
+    for cross-validation and discrepancy detection when their API keys are present.
     """
 
     def __init__(
@@ -22,8 +24,9 @@ class WeatherGateway:
         primary_provider: Optional[OpenMeteoProvider] = None,
         secondary_providers: Optional[List[Any]] = None,
     ):
+        # Open-Meteo is the mandatory primary provider
         self.primary = primary_provider or OpenMeteoProvider()
-        # Auto-register OpenWeather and WeatherAPI providers if not explicitly supplied
+        # Optional secondary providers for consistency/discrepancy checking
         if secondary_providers is not None:
             self.secondaries = secondary_providers
         else:
