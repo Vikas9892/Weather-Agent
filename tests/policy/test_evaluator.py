@@ -88,9 +88,9 @@ def test_evaluate_picnic_fuzzy_rec001_and_rec003(registry, evaluator):
 
 
 def test_evaluate_all_candidate_policies(registry, evaluator):
-    """Evaluating 25 policies returns results for all policies."""
+    """Evaluating policies returns results for all policies in registry."""
     policies = registry.get_all()
-    assert len(policies) == 25
+    assert len(policies) >= 25
 
     calm_context = {
         "activity": "cycling",
@@ -109,7 +109,7 @@ def test_evaluate_all_candidate_policies(registry, evaluator):
     }
 
     results = evaluator.evaluate_all(policies, calm_context)
-    assert len(results) == 25
+    assert len(results) == len(policies)
 
     # In calm pleasant weather, severe hazards must not trigger
     hazard_results = [r for r in results if r.policy_id.startswith("HAZ-")]

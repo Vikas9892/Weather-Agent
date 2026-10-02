@@ -200,20 +200,25 @@ class LLMGateway:
                 system_prompt = (
                     "You are the voice of the Outdoor Safety Agent. You explain safety decisions to users.\n"
                     "CRITICAL CONSTRAINTS:\n"
-                    f"1. You must explicitly name the cited SOP ID: {sop_id}.\n"
+                    f"1. You must explicitly name the cited SOP ID: [{sop_id}].\n"
                     "2. You must strictly cite ONLY the weather numbers provided in context.\n"
                     "3. You must NOT invent advice, downplay severity, or contradict the policy decision.\n"
                     f"4. Severity is {sev}. Decision is: {act_dec}.\n"
+                    "5. Format your output strictly in structured points with clear headers:\n"
+                    "📍 Current Conditions:\n"
+                    "🛡️ Applicable Safety Policy:\n"
+                    "📋 Recommendation:\n"
+                    "💡 Rationale:"
                 )
                 user_prompt = (
                     f"User Query: '{query}'\n"
                     f"Location: {location_name}\n"
                     f"Observed Weather Facts: {weather_str}\n"
-                    f"Cited SOP: {sop_id} - {sop_title}\n"
+                    f"Cited SOP: [{sop_id}: {sop_title}]\n"
                     f"Severity Level: {sev}\n"
                     f"Policy Decision: {act_dec}\n"
                     f"Rationale: {rat}\n"
-                    "Write a clear, empathetic 2-3 sentence response communicating the safety decision and citing the exact SOP."
+                    "Write a concise, structured response in points."
                 )
                 resp = litellm.completion(
                     model=model,
@@ -223,18 +228,24 @@ class LLMGateway:
                     ],
                     api_key=api_key,
                     temperature=0.2,
-                    max_tokens=250,
+                    max_tokens=300,
                 )
                 return resp.choices[0].message.content.strip()
             except Exception as e:
                 logger.warning(f"LiteLLM ({model}) response generation fallback: {e}")
 
-        # Deterministic high-quality template response
+        # Deterministic high-quality structured template response
         return (
-            f"Based on current weather conditions in {location_name} ({weather_str}), "
-            f"safety policy [{sop_id}: {sop_title}] applies at {sev} severity. "
-            f"Recommendation: {act_dec} "
-            f"Rationale: {rat}"
+            f"📍 Current Conditions:\n"
+            f"• Location: {location_name}\n"
+            f"• Live Weather: {weather_str}\n\n"
+            f"🛡️ Applicable Safety Policy:\n"
+            f"• Policy: [{sop_id}: {sop_title}]\n"
+            f"• Severity: {sev}\n\n"
+            f"📋 Recommendation:\n"
+            f"• {act_dec}\n\n"
+            f"💡 Rationale:\n"
+            f"• {rat}"
         )
 
     @staticmethod

@@ -166,7 +166,9 @@
 
     .response-body {
       font-size: 0.95rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     details {
@@ -435,12 +437,19 @@
           <span class="severity-badge ${sevClass}">${sevText}</span>
           ${sopBadges}
         </div>
-        <div class="response-body">${escapeHtml(data.response)}</div>
+        <div class="response-body">${formatResponse(data.response)}</div>
         ${traceHtml}
       `;
 
       chatStream.appendChild(card);
       chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    function formatResponse(str) {
+      if (!str) return "";
+      let safe = escapeHtml(str);
+      // Support bold syntax **header** -> <strong>header</strong>
+      return safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     }
 
     function escapeHtml(str) {

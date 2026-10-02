@@ -46,6 +46,7 @@ class ResponseValidator:
                 "no specific policy",
                 "no specific standard",
                 "does not have guidance",
+                "no applicable standard operating procedure",
             ]
             if not any(phrase in response_text.lower() for phrase in no_sop_phrases):
                 failures.append("Rule 8 Violation: Response failed to explicitly state that no SOP applies.")
@@ -54,9 +55,14 @@ class ResponseValidator:
                 # Deterministic fallback for no SOP
                 clean_weather = f"{weather.temperature_2m}°C" if weather and weather.temperature_2m is not None else "observed conditions"
                 fallback = (
-                    f"We evaluated live weather for {location_name} ({clean_weather}), but have no applicable "
-                    f"Standard Operating Procedure (SOP) safety policy covering '{activity}'. "
-                    f"Our system does not invent ungrounded safety advice. Please consult local authorities."
+                    f"📍 Current Conditions:\n"
+                    f"• Location: {location_name}\n"
+                    f"• Live Weather: {clean_weather}\n\n"
+                    f"🛡️ Safety Evaluation:\n"
+                    f"• Activity: {activity}\n"
+                    f"• Status: We evaluated live weather, but have no applicable Standard Operating Procedure (SOP) safety policy covering '{activity}'.\n\n"
+                    f"📋 Recommendation:\n"
+                    f"• Our system does not invent ungrounded safety advice. Please consult local authorities."
                 )
                 return ValidationResult(
                     is_valid=False,
@@ -126,10 +132,16 @@ class ResponseValidator:
             w_str = ", ".join(w_desc) if w_desc else "recorded conditions"
 
             deterministic_fallback = (
-                f"Based on verified weather in {location_name} ({w_str}), "
-                f"SOP [{selected_sop.id}: {selected_sop.title}] applies at {selected_sop.severity.upper()} severity. "
-                f"Decision: {selected_sop.decision_text} "
-                f"Rationale: {selected_sop.rationale_text}"
+                f"📍 Current Conditions:\n"
+                f"• Location: {location_name}\n"
+                f"• Live Weather: {w_str}\n\n"
+                f"🛡️ Applicable Safety Policy:\n"
+                f"• Policy: [{selected_sop.id}: {selected_sop.title}]\n"
+                f"• Severity: {selected_sop.severity.upper()}\n\n"
+                f"📋 Recommendation:\n"
+                f"• {selected_sop.decision_text}\n\n"
+                f"💡 Rationale:\n"
+                f"• {selected_sop.rationale_text}"
             )
             return ValidationResult(
                 is_valid=False,

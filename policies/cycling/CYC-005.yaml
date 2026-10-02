@@ -1,0 +1,40 @@
+id: CYC-005
+version: 1.0.0
+status: active
+title: Favorable and Safe Conditions for Cycling and Commuting
+category: cycling
+activities:
+  - cycling
+  - biking
+  - two-wheeler
+severity: low
+priority: 10
+conditions:
+  all:
+    - field: wind_speed_10m
+      operator: "<="
+      value: 25.0
+    - field: precipitation
+      operator: "<="
+      value: 1.0
+    - field: temperature_2m
+      operator: ">="
+      value: 12.0
+    - field: temperature_2m
+      operator: "<="
+      value: 32.0
+evidence:
+  - wind_speed_10m
+  - precipitation
+  - temperature_2m
+decision: >-
+  Conditions are favorable and safe for cycling. Wind speeds and temperatures are well within normal operating limits with dry roads. Enjoy your ride!
+rationale: >-
+  Calm to moderate winds (< 25 km/h) ensure bicycle stability, comfortable ambient temperatures (12-32°C) avoid heat or cold distress, and absence of heavy rain maintains tire traction.
+tags:
+  - cycling
+  - safe
+  - favorable
+overrides: []
+source: Global Cycling Safety Advisory Standards
+effective_from: "2024-01-01"

@@ -82,12 +82,31 @@ def no_sop_fallback_node(state: SafetyState) -> Dict[str, Any]:
         if ev.get("missing_evidence"):
             missing_all.extend(ev["missing_evidence"])
 
+    w_desc = []
+    if weather.get("temperature_2m") is not None:
+        w_desc.append(f"{weather['temperature_2m']}°C")
+    if weather.get("wind_speed_10m") is not None:
+        w_desc.append(f"wind {weather['wind_speed_10m']} km/h")
+    if weather.get("wind_gusts_10m") is not None:
+        w_desc.append(f"gusts {weather['wind_gusts_10m']} km/h")
+    if weather.get("precipitation") is not None:
+        w_desc.append(f"rain {weather['precipitation']} mm")
+    if weather.get("uv_index") is not None:
+        w_desc.append(f"UV {weather['uv_index']}")
+    w_str = ", ".join(w_desc) if w_desc else "observed conditions"
+
     if missing_all:
         unique_missing = sorted(list(set(missing_all)))
         response_msg = (
-            f"Weather data for {loc_name} {temp_str}is missing required metrics ({', '.join(unique_missing)}) "
-            f"needed to definitively evaluate safety policies for '{activity}'. "
-            f"Our system cannot certify conditions as safe without complete evidence. Please exercise caution."
+            f"📍 Current Conditions:\n"
+            f"• Location: {loc_name}\n"
+            f"• Live Weather: {w_str}\n\n"
+            f"🛡️ Safety Evaluation:\n"
+            f"• Activity: {activity}\n"
+            f"• Missing Metrics: {', '.join(unique_missing)}\n"
+            f"• Status: UNCERTAIN - Missing required sensory telemetry needed to certify safety.\n\n"
+            f"📋 Recommendation:\n"
+            f"• Our system cannot certify conditions as safe without complete evidence. Please exercise caution."
         )
         return {
             "selected_sop": None,
@@ -97,11 +116,33 @@ def no_sop_fallback_node(state: SafetyState) -> Dict[str, Any]:
             "safety_reason": f"Required meteorological metrics missing: {unique_missing}",
         }
 
-    response_msg = (
-        f"We evaluated live weather for {loc_name} {temp_str}and checked our policy registry, "
-        f"but have no applicable Standard Operating Procedure (SOP) safety policy covering '{activity}'. "
-        f"Our system strictly refrains from inventing safety advice. Please consult local authorities."
-    )
+    evaluated_ids = [e.get("policy_id") for e in state.get("evaluated_sops", []) if e.get("policy_id")]
+    act_candidates = [cid for cid in evaluated_ids if not cid.startswith("HAZ-")]
+
+    if act_candidates:
+        response_msg = (
+            f"📍 Current Conditions:\n"
+            f"• Location: {loc_name}\n"
+            f"• Live Weather: {w_str}\n\n"
+            f"🛡️ Safety Evaluation:\n"
+            f"• Activity: {activity}\n"
+            f"• Evaluated Hazard Policies: {', '.join(act_candidates)}\n"
+            f"• Status: All evaluated hazard checks passed. No applicable SOP hazard applies under current conditions.\n\n"
+            f"📋 Recommendation:\n"
+            f"• Conditions are within normal operating limits with no active hazard warnings. Please observe general outdoor safety rules."
+        )
+    else:
+        response_msg = (
+            f"📍 Current Conditions:\n"
+            f"• Location: {loc_name}\n"
+            f"• Live Weather: {w_str}\n\n"
+            f"🛡️ Safety Evaluation:\n"
+            f"• Activity: {activity}\n"
+            f"• Status: We checked our registry, but have no applicable Standard Operating Procedure (SOP) safety policy covering '{activity}'.\n\n"
+            f"📋 Recommendation:\n"
+            f"• Our system strictly refrains from inventing ungrounded safety advice. Please consult local authorities."
+        )
+
     return {
         "selected_sop": None,
         "policy_decision": None,
