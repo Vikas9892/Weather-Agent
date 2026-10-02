@@ -24,7 +24,8 @@ class WeatherGateway:
         self.secondaries = secondary_providers or []
         self._mock_weather: Optional[WeatherState] = None
         self._mock_location: Optional[Location] = None
-        self._simulate_failure: bool = False
+        self._simulate_location_failure: bool = False
+        self._simulate_weather_failure: bool = False
 
     def set_mock_weather(self, weather: Optional[WeatherState]) -> None:
         """Injects mock weather state for deterministic evaluation/testing."""
@@ -35,15 +36,20 @@ class WeatherGateway:
         self._mock_location = location
 
     def set_simulate_failure(self, simulate: bool) -> None:
-        """Simulates network or API failure for resilience testing."""
-        self._simulate_failure = simulate
+        """Simulates both location and weather API failure."""
+        self._simulate_location_failure = simulate
+        self._simulate_weather_failure = simulate
+
+    def set_simulate_weather_failure(self, simulate: bool) -> None:
+        """Simulates only weather API failure while allowing location resolution."""
+        self._simulate_weather_failure = simulate
 
     def resolve_location(self, location_query: str) -> Tuple[Optional[Location], Optional[str]]:
         """
         Resolves location name to geographical coordinates.
         Returns (Location, error_message).
         """
-        if self._simulate_failure:
+        if self._simulate_location_failure:
             return None, "Simulated location service failure"
 
         if self._mock_location is not None:
@@ -59,8 +65,9 @@ class WeatherGateway:
         Fetches current weather for the resolved location.
         Returns (WeatherState, WeatherStatus, explanation_reason).
         """
-        if self._simulate_failure:
+        if self._simulate_weather_failure:
             return None, WeatherStatus.UNAVAILABLE, "Weather provider API is currently unreachable."
+
 
         if self._mock_weather is not None:
             return self._mock_weather, WeatherStatus.VALID, "Using injected verified weather state."
