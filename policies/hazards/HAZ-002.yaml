@@ -1,0 +1,48 @@
+id: HAZ-002
+version: 1.0.0
+status: active
+title: Severe Thunderstorm and Cloud-to-Ground Lightning Alert
+category: hazards
+activities:
+  - all
+  - cycling
+  - hiking
+  - recreation
+  - exercise
+  - family
+severity: extreme
+priority: 95
+conditions:
+  any:
+    - field: weather_code
+      operator: in
+      value:
+        - 95
+        - 96
+        - 99
+    - all:
+        - field: precipitation_probability
+          operator: ">="
+          value: 80
+        - field: wind_gusts_10m
+          operator: ">="
+          value: 50.0
+evidence:
+  - weather_code
+  - wind_gusts_10m
+  - precipitation_probability
+decision: >-
+  Cease all outdoor operations immediately. Move into a fully enclosed building or metal-topped vehicle.
+  Stay away from exposed ridges, isolated tall trees, bodies of water, and metal fences.
+rationale: >-
+  Convective thunderstorm cells generate direct lightning strike dangers, localized microbursts, and hail
+  capable of causing fatal trauma within seconds of cloud formation.
+tags:
+  - thunderstorm
+  - lightning
+  - convective-storm
+overrides:
+  - HIK-001
+  - REC-002
+source: National Lightning Safety Council & IMD Thunderstorm Advisory
+effective_from: "2024-01-01"

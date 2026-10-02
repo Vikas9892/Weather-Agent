@@ -1,0 +1,40 @@
+id: FAM-003
+version: 1.0.0
+status: active
+title: Senior Citizen and Infant Thermal Vulnerability to Chilling Damp
+category: family
+activities:
+  - stroll
+  - walking
+  - park_outing
+severity: moderate
+priority: 45
+conditions:
+  any:
+    - field: temperature_2m
+      operator: "<="
+      value: 10.0
+    - all:
+        - field: temperature_2m
+          operator: "<="
+          value: 14.0
+        - field: wind_speed_10m
+          operator: ">="
+          value: 20.0
+evidence:
+  - temperature_2m
+  - wind_speed_10m
+decision: >-
+  Keep outdoor excursions for infants and seniors under 25 minutes. Ensure multiple insulating layers, head coverings,
+  and windproof blankets over strollers. Avoid sitting on cold metal or stone park benches.
+rationale: >-
+  Thermoregulatory vasoconstriction and reduced subcutaneous insulating fat in seniors and newborns make prolonged
+  exposure to damp cool air below 14°C a primary trigger for hypothermia and respiratory distress.
+tags:
+  - family
+  - seniors
+  - infants
+  - cold-sensitivity
+overrides: []
+source: National Institute on Aging & Pediatric Health Society
+effective_from: "2024-01-01"

@@ -1,0 +1,32 @@
+id: EXE-001
+version: 1.0.0
+status: active
+title: Dangerous Solar Ultraviolet Radiation During Outdoor Exercise
+category: exercise
+activities:
+  - exercise
+  - running
+  - jogging
+  - fitness
+severity: high
+priority: 70
+conditions:
+  all:
+    - field: uv_index
+      operator: ">="
+      value: 8.0
+evidence:
+  - uv_index
+decision: >-
+  Advise against unprotected midday running or strenuous outdoor training. If exercising outdoors, reschedule
+  to before 10:00 or after 17:00, apply broad-spectrum SPF 50+ sunscreen, and wear UV-rated sunglasses and a brimmed cap.
+rationale: >-
+  UV Index levels of 8 or above cause erythema (sunburn) within 15 minutes of unprotected exposure and significantly
+  elevate cellular DNA damage and heat strain during intense cardio.
+tags:
+  - exercise
+  - uv
+  - solar-radiation
+overrides: []
+source: World Health Organization Global Solar UV Index Standards
+effective_from: "2024-01-01"

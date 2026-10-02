@@ -1,0 +1,38 @@
+id: CYC-002
+version: 1.0.0
+status: active
+title: Heavy Rain, Hydroplaning, and Brake Failure Hazard for Cyclists
+category: cycling
+activities:
+  - cycling
+  - biking
+severity: high
+priority: 70
+conditions:
+  any:
+    - field: precipitation
+      operator: ">="
+      value: 7.5
+    - all:
+        - field: precipitation_probability
+          operator: ">="
+          value: 75
+        - field: precipitation
+          operator: ">="
+          value: 3.0
+evidence:
+  - precipitation
+  - precipitation_probability
+decision: >-
+  Avoid cycling in continuous moderate-to-heavy rainfall. Wet rim brakes lose up to 60% stopping friction,
+  and localized ponding increases hydroplaning risks and obscures pothole depth.
+rationale: >-
+  Wet rubber-to-asphalt adhesion coefficients drop precipitously in rain, drastically lengthening emergency stopping
+  distances and obscuring submerged obstacles.
+tags:
+  - cycling
+  - rain
+  - wet-brakes
+overrides: []
+source: Urban Mobility Safety Board
+effective_from: "2024-01-01"

@@ -1,0 +1,36 @@
+id: CYC-004
+version: 1.0.0
+status: active
+title: Low Visibility and Fog Warning for Urban Cyclists
+category: cycling
+activities:
+  - cycling
+  - commuting
+severity: moderate
+priority: 50
+conditions:
+  any:
+    - field: weather_code
+      operator: in
+      value:
+        - 45
+        - 48
+    - field: visibility
+      operator: "<="
+      value: 1000.0
+evidence:
+  - weather_code
+  - visibility
+decision: >-
+  Use high-lumen front and rear flashing strobe lights, wear high-visibility fluorescent apparel, and reduce
+  speed by at least 40%. If visibility is under 500m, avoid roadway cycling completely.
+rationale: >-
+  Driver sighting distance drops below critical stopping sight distance in fog, with cyclists lacking side-profile
+  illumination becoming virtually invisible until within immediate collision radius.
+tags:
+  - cycling
+  - fog
+  - visibility
+overrides: []
+source: Federal Highway Administration Bicycle Safety Guide
+effective_from: "2024-01-01"

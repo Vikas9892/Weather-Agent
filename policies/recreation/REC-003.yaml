@@ -1,0 +1,47 @@
+id: REC-003
+version: 1.0.0
+status: active
+title: Golden Window for Picnics and Outdoor Leisure Gatherings
+category: recreation
+activities:
+  - picnic
+  - gathering
+  - park_outing
+  - relaxation
+severity: low
+priority: 15
+conditions:
+  all:
+    - field: temperature_2m
+      operator: ">="
+      value: 18.0
+    - field: temperature_2m
+      operator: "<="
+      value: 27.0
+    - field: precipitation
+      operator: "=="
+      value: 0.0
+    - field: precipitation_probability
+      operator: "<="
+      value: 20
+    - field: wind_speed_10m
+      operator: "<="
+      value: 20.0
+evidence:
+  - temperature_2m
+  - precipitation
+  - precipitation_probability
+  - wind_speed_10m
+decision: >-
+  Outstanding conditions for picnics, lawn games, and open-air leisure. Temperatures are comfortable, the turf is dry,
+  and gentle breezes won't disturb table settings or paper goods. Enjoy your day outdoors!
+rationale: >-
+  The 18-27°C ambient band with calm winds and zero precipitation ensures maximum human thermal comfort, dry ground
+  for sitting, and optimal enjoyment of open food and lawn activities.
+tags:
+  - picnic
+  - ideal
+  - pleasant
+overrides: []
+source: Hospitality and Outdoor Leisure Association
+effective_from: "2024-01-01"

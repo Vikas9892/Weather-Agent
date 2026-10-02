@@ -1,0 +1,48 @@
+id: HAZ-001
+version: 1.0.0
+status: active
+title: IMD Well-Marked Low Pressure Heavy Rainfall System Alert
+category: hazards
+activities:
+  - all
+  - cycling
+  - exercise
+  - hiking
+  - recreation
+  - family
+  - travel
+severity: extreme
+priority: 100
+conditions:
+  any:
+    - field: precipitation
+      operator: ">="
+      value: 30.0
+    - all:
+        - field: precipitation
+          operator: ">="
+          value: 15.0
+        - field: wind_gusts_10m
+          operator: ">="
+          value: 45.0
+evidence:
+  - precipitation
+  - wind_gusts_10m
+  - weather_code
+decision: >-
+  Cancel all non-essential outdoor activities immediately due to an active heavy rainfall system.
+  Seek sturdy indoor shelter and avoid low-lying roads, underpasses, and flood-prone drainage paths.
+rationale: >-
+  Active monsoon low-pressure depressions bring localized torrential downpours exceeding municipal drainage
+  capacities, rapidly creating flash waterlogging, structural collapse risks, and zero-traction road conditions.
+tags:
+  - monsoon
+  - depression
+  - flood
+  - extreme-rain
+overrides:
+  - CYC-002
+  - TRV-001
+  - REC-001
+source: IMD Monsoon Standard Operating Procedure & Severe Weather Protocol
+effective_from: "2024-01-01"

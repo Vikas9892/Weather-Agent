@@ -1,0 +1,38 @@
+id: HAZ-004
+version: 1.0.0
+status: active
+title: Squally Gale Wind & Severe Structural Gust Advisory
+category: hazards
+activities:
+  - travel
+  - cycling
+  - recreation
+  - hiking
+severity: high
+priority: 85
+conditions:
+  any:
+    - field: wind_speed_10m
+      operator: ">="
+      value: 45.0
+    - field: wind_gusts_10m
+      operator: ">="
+      value: 65.0
+evidence:
+  - wind_speed_10m
+  - wind_gusts_10m
+decision: >-
+  Squally wind warning: Avoid open coastal roads, elevated flyovers, and canopy trails.
+  Two-wheelers and high-profile transport should cease transit until wind gusts subside below 45 km/h.
+rationale: >-
+  Sustained winds exceeding 45 km/h and gusts over 65 km/h cause structural destabilization of lightweight
+  vehicles, snapping branches, and projectile hazards from unanchored infrastructure.
+tags:
+  - squall
+  - high-winds
+  - coastal
+overrides:
+  - CYC-001
+  - TRV-002
+source: Coastal Weather Service & IMD Marine Weather Bulletins
+effective_from: "2024-01-01"

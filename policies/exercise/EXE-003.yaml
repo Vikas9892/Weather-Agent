@@ -1,0 +1,34 @@
+id: EXE-003
+version: 1.0.0
+status: active
+title: Hypothermia and Bronchospasm Risk in Freezing Wind Chill
+category: exercise
+activities:
+  - exercise
+  - running
+severity: moderate
+priority: 55
+conditions:
+  all:
+    - field: temperature_2m
+      operator: "<="
+      value: 2.0
+    - field: wind_speed_10m
+      operator: ">="
+      value: 20.0
+evidence:
+  - temperature_2m
+  - wind_speed_10m
+decision: >-
+  Dress in moisture-wicking synthetic layers with windproof outer shell, cover extremities (thermal gloves, balaclava),
+  and warm up indoors before venturing outside. Exercise-induced asthma sufferers must carry inhalers.
+rationale: >-
+  Rapid inhalation of sub-2°C turbulent air provokes exercise-induced bronchoconstriction, while convective heat
+  loss from damp clothing elevates peripheral frostnip and systemic hypothermia vulnerability.
+tags:
+  - exercise
+  - cold
+  - wind-chill
+overrides: []
+source: Canadian Centre for Occupational Health and Safety (CCOHS) Cold Stress Standard
+effective_from: "2024-01-01"

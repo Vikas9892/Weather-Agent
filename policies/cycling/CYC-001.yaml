@@ -1,0 +1,35 @@
+id: CYC-001
+version: 1.0.0
+status: active
+title: Strong Crosswind and Lateral Gust Risk for Cyclists
+category: cycling
+activities:
+  - cycling
+  - biking
+  - two-wheeler
+severity: high
+priority: 75
+conditions:
+  any:
+    - field: wind_speed_10m
+      operator: ">="
+      value: 40.0
+    - field: wind_gusts_10m
+      operator: ">="
+      value: 50.0
+evidence:
+  - wind_speed_10m
+  - wind_gusts_10m
+decision: >-
+  Advise against cycling or two-wheeler commuting. Lateral gusts over 40 km/h severely impact steering stability,
+  pushing riders into vehicular traffic lanes or off shoulders.
+rationale: >-
+  Aerodynamic cross-sectional area of bicycles creates uncontrollable lateral moment arm during sudden wind gusts,
+  greatly multiplying side-collision accident rates.
+tags:
+  - cycling
+  - wind
+  - stability
+overrides: []
+source: Cycling Safety Association & Road Transport Department Guidelines
+effective_from: "2024-01-01"

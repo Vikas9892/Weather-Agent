@@ -1,0 +1,38 @@
+id: HIK-002
+version: 1.0.0
+status: active
+title: Trail Washout, Mudslide, and Ravine Flash Flooding Alert
+category: hiking
+activities:
+  - hiking
+  - trekking
+severity: high
+priority: 75
+conditions:
+  any:
+    - field: precipitation
+      operator: ">="
+      value: 12.0
+    - all:
+        - field: precipitation
+          operator: ">="
+          value: 6.0
+        - field: precipitation_probability
+          operator: ">="
+          value: 80
+evidence:
+  - precipitation
+  - precipitation_probability
+decision: >-
+  Postpone backcountry hikes and avoid trails traversing slot canyons, dry creek beds, or steep scree slopes.
+  If already on trail, do not attempt to ford swollen streams and move to elevated bedrock.
+rationale: >-
+  Rainfall rates exceeding 6-12 mm cause rapid saturated soil slippage, devastating mudslides, and sudden flash floods
+  down mountain drainages that can trap hikers hours before rain peaks downstream.
+tags:
+  - hiking
+  - flash-flood
+  - mudslide
+overrides: []
+source: US Forest Service & National Wilderness Safety Guidelines
+effective_from: "2024-01-01"

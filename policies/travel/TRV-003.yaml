@@ -1,0 +1,43 @@
+id: TRV-003
+version: 1.0.0
+status: active
+title: Zero-Visibility Fog Highway Multi-Vehicle Pileup Protocol
+category: travel
+activities:
+  - travel
+  - driving
+  - highway_transit
+severity: high
+priority: 70
+conditions:
+  any:
+    - field: visibility
+      operator: "<="
+      value: 500.0
+    - all:
+        - field: weather_code
+          operator: in
+          value:
+            - 45
+            - 48
+        - field: relative_humidity_2m
+          operator: ">="
+          value: 90.0
+evidence:
+  - visibility
+  - weather_code
+  - relative_humidity_2m
+decision: >-
+  Delay highway travel until fog burns off. If already driving, activate low-beam headlights and dedicated fog lights;
+  never use high beams. Follow right-edge lane markings, never stop in travel lanes, and avoid abrupt braking.
+rationale: >-
+  Dense fog under 500m visibility induces spatial disorientation, causes drivers to misjudge distance to preceding
+  vehicles, and is the primary meteorological factor in multi-vehicle interstate pileups.
+tags:
+  - travel
+  - fog
+  - low-visibility
+  - pileup-risk
+overrides: []
+source: National Highway Traffic Safety Administration (NHTSA)
+effective_from: "2024-01-01"

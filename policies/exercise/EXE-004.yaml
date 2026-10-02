@@ -1,0 +1,43 @@
+id: EXE-004
+version: 1.0.0
+status: active
+title: Optimal Weather Conditions for Outdoor Aerobic Conditioning
+category: exercise
+activities:
+  - exercise
+  - running
+  - walking
+  - workout
+severity: low
+priority: 20
+conditions:
+  all:
+    - field: temperature_2m
+      operator: ">="
+      value: 14.0
+    - field: temperature_2m
+      operator: "<="
+      value: 23.0
+    - field: precipitation
+      operator: "=="
+      value: 0.0
+    - field: wind_speed_10m
+      operator: "<="
+      value: 20.0
+evidence:
+  - temperature_2m
+  - precipitation
+  - wind_speed_10m
+decision: >-
+  Conditions are prime for outdoor cardiovascular and athletic training. Mild ambient temperatures and dry footing
+  provide minimal thermal strain and peak biomechanical efficiency. Maintain standard baseline hydration.
+rationale: >-
+  The 14-23°C temperature envelope matches the optimal human cardiovascular thermoregulatory equilibrium for aerobic
+  exertion without requiring excessive metabolic energy for warming or sweating.
+tags:
+  - exercise
+  - optimal
+  - low-risk
+overrides: []
+source: Exercise Physiology & Biomechanics International Consensus
+effective_from: "2024-01-01"

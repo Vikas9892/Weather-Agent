@@ -1,0 +1,34 @@
+id: CYC-003
+version: 1.0.0
+status: active
+title: Elevated Thermal Exposure and Dehydration for Cyclists
+category: cycling
+activities:
+  - cycling
+  - biking
+severity: moderate
+priority: 55
+conditions:
+  all:
+    - field: temperature_2m
+      operator: ">="
+      value: 36.0
+    - field: apparent_temperature
+      operator: ">="
+      value: 38.0
+evidence:
+  - temperature_2m
+  - apparent_temperature
+decision: >-
+  Limit ride duration to under 30 minutes, carry minimum 1.5 liters of hydration with electrolytes,
+  and avoid afternoon peak sun hours (12:00-16:00). Consider indoor stationary training.
+rationale: >-
+  Urban asphalt surface temperatures routinely reach 50°C+ under 36°C ambient conditions, radiating high heat flux
+  directly onto passing cyclists while exertion generates substantial internal metabolic heat.
+tags:
+  - cycling
+  - heat
+  - hydration
+overrides: []
+source: Sports Medicine Cycling Protocol
+effective_from: "2024-01-01"

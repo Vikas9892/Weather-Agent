@@ -1,0 +1,40 @@
+id: EXE-002
+version: 1.0.0
+status: active
+title: Exertional Heat Exhaustion and Wet-Bulb Stress During Training
+category: exercise
+activities:
+  - exercise
+  - running
+  - sports
+severity: high
+priority: 72
+conditions:
+  any:
+    - field: apparent_temperature
+      operator: ">="
+      value: 35.0
+    - all:
+        - field: temperature_2m
+          operator: ">="
+          value: 32.0
+        - field: relative_humidity_2m
+          operator: ">="
+          value: 70.0
+evidence:
+  - apparent_temperature
+  - temperature_2m
+  - relative_humidity_2m
+decision: >-
+  Curtail high-intensity intervals and endurance runs. Reduce pace by 15-20%, take mandatory rest breaks in shade
+  every 15 minutes, and hydrate with minimum 250ml fluids every 20 minutes.
+rationale: >-
+  High humidity combined with ambient temperatures above 32°C prevents sweat evaporation, causing rapid core
+  hyperthermia and sudden onset of heat cramps or exertional heat exhaustion.
+tags:
+  - exercise
+  - heat-stress
+  - humidity
+overrides: []
+source: American College of Sports Medicine Guidelines for Exercise in the Heat
+effective_from: "2024-01-01"

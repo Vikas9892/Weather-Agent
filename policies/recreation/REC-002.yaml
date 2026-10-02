@@ -1,0 +1,36 @@
+id: REC-002
+version: 1.0.0
+status: active
+title: Gusty Wind Disturbance for Canopies, Tents, and Lawn Sports
+category: recreation
+activities:
+  - picnic
+  - badminton
+  - lawn_games
+  - camping
+severity: moderate
+priority: 50
+conditions:
+  any:
+    - field: wind_speed_10m
+      operator: ">="
+      value: 30.0
+    - field: wind_gusts_10m
+      operator: ">="
+      value: 42.0
+evidence:
+  - wind_speed_10m
+  - wind_gusts_10m
+decision: >-
+  Use heavy steel spiral stakes and sandbags for any pop-up gazebos or shades. Light shuttlecock sports and open-fire
+  grills should be suspended due to ember drift and tipping risks.
+rationale: >-
+  Winds exceeding 30 km/h cause standard picnic umbrellas and lightweight shade canopies to collapse or become airborne,
+  and disperse grill sparks into nearby dry grass.
+tags:
+  - picnic
+  - wind
+  - canopy-safety
+overrides: []
+source: Outdoor Events & Municipal Park Standards
+effective_from: "2024-01-01"

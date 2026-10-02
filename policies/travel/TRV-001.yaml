@@ -1,0 +1,41 @@
+id: TRV-001
+version: 1.0.0
+status: active
+title: Highway Aquaplaning, Road Submersion, and Severe Commute Delay
+category: travel
+activities:
+  - travel
+  - driving
+  - road_trip
+  - commute
+severity: high
+priority: 72
+conditions:
+  any:
+    - field: precipitation
+      operator: ">="
+      value: 10.0
+    - all:
+        - field: precipitation
+          operator: ">="
+          value: 4.0
+        - field: precipitation_probability
+          operator: ">="
+          value: 70
+evidence:
+  - precipitation
+  - precipitation_probability
+decision: >-
+  Expect extensive road transit delays, reduce driving speeds by 25-30%, double following distances, and turn on
+  dipped headlights. Never drive through standing water across road dips or underpasses of unknown depth.
+rationale: >-
+  Precipitation intensities above 4-10 mm generate continuous sheet flow across highways, initiating tire aquaplaning
+  at speeds as low as 65 km/h and inundating low-clearance passenger vehicle electrical systems.
+tags:
+  - travel
+  - driving
+  - hydroplaning
+  - waterlogging
+overrides: []
+source: Department of Transportation Highway Safety Administration
+effective_from: "2024-01-01"

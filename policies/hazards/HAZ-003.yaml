@@ -1,0 +1,40 @@
+id: HAZ-003
+version: 1.0.0
+status: active
+title: Extreme Heat Emergency and Exertional Heatstroke Protocol
+category: hazards
+activities:
+  - all
+  - exercise
+  - cycling
+  - hiking
+  - family
+severity: extreme
+priority: 90
+conditions:
+  any:
+    - field: temperature_2m
+      operator: ">="
+      value: 42.0
+    - field: apparent_temperature
+      operator: ">="
+      value: 45.0
+evidence:
+  - temperature_2m
+  - apparent_temperature
+decision: >-
+  Extreme heat warning: Suspend strenuous outdoor recreation and physical labor. Stay in air-conditioned or shaded
+  environments, consume electrolyte solutions, and look out for signs of delirium, nausea, or cessation of sweating.
+rationale: >-
+  Temperatures above 42°C with high thermal radiation overwhelm human evaporative cooling mechanisms,
+  resulting in rapid core body temperature escalation and acute hyperthermia risk.
+tags:
+  - heatwave
+  - hyperthermia
+  - red-alert
+overrides:
+  - EXE-002
+  - CYC-003
+  - FAM-001
+source: WHO Heat-Health Action Plans & NDMA Heatwave Guidelines
+effective_from: "2024-01-01"

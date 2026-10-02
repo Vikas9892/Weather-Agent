@@ -1,0 +1,41 @@
+id: FAM-002
+version: 1.0.0
+status: active
+title: Wet Playground Equipment and Climbing Fall Hazard
+category: family
+activities:
+  - playground
+  - park_outing
+  - kids_play
+severity: moderate
+priority: 50
+conditions:
+  any:
+    - field: precipitation
+      operator: ">"
+      value: 0.2
+    - all:
+        - field: precipitation_probability
+          operator: ">="
+          value: 60
+        - field: relative_humidity_2m
+          operator: ">="
+          value: 80.0
+evidence:
+  - precipitation
+  - precipitation_probability
+  - relative_humidity_2m
+decision: >-
+  Avoid monkey bars, climbing ropes, high jungle gyms, and steep slide ladders when wet.
+  Moisture eliminates shoe grip and handhold friction, creating significant risk of traumatic fall injuries.
+rationale: >-
+  Wet steel rungs and damp synthetic playground flooring show a 70% reduction in friction coefficient, directly
+  accounting for the majority of playground emergency room visits during or following damp weather.
+tags:
+  - family
+  - kids
+  - playground
+  - slip-fall
+overrides: []
+source: US Consumer Product Safety Commission (CPSC) Playground Safety Handbook
+effective_from: "2024-01-01"

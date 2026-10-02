@@ -1,0 +1,37 @@
+id: FAM-001
+version: 1.0.0
+status: active
+title: Pediatric Heat and Solar Radiation Sensitivity at Parks
+category: family
+activities:
+  - playground
+  - park_outing
+  - stroll
+  - family_outing
+severity: high
+priority: 65
+conditions:
+  any:
+    - field: temperature_2m
+      operator: ">="
+      value: 32.0
+    - field: uv_index
+      operator: ">="
+      value: 7.0
+evidence:
+  - temperature_2m
+  - uv_index
+decision: >-
+  Inspect playground equipment surfaces (metal slides, dark rubber swings) before children touch them—surface temperatures
+  can exceed 60°C and cause severe contact burns. Enforce wide-brim hats, sunscreen, and shade breaks every 20 minutes.
+rationale: >-
+  Children have higher body surface-area-to-mass ratios and less developed sweating capacities than adults, making them
+  succumb to dehydration and heat exhaustion twice as fast under identical thermal loads.
+tags:
+  - family
+  - children
+  - playground
+  - burn-risk
+overrides: []
+source: American Academy of Pediatrics & Child Safety Foundation
+effective_from: "2024-01-01"

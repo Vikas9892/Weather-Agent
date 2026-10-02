@@ -1,0 +1,31 @@
+id: HIK-004
+version: 1.0.0
+status: active
+title: Alpine Freezing and Severe Hypothermia Risk for Hikers
+category: hiking
+activities:
+  - hiking
+  - trekking
+  - camping
+severity: high
+priority: 68
+conditions:
+  all:
+    - field: temperature_2m
+      operator: "<="
+      value: 0.0
+evidence:
+  - temperature_2m
+decision: >-
+  Carry 4-season thermal sleep systems, insulated footwear with crampons/microspikes for ice patches, and stove
+  fuel capable of melting snow. Water filtration devices must be kept inside jacket layers to prevent freezing.
+rationale: >-
+  Sub-zero ambient air causes rapid frostbite on exposed fingers and nose cartilage, freezes drinking water sources,
+  and glazes trail boulders with invisible verglas ice.
+tags:
+  - hiking
+  - freezing
+  - alpine-winter
+overrides: []
+source: Wilderness Medical Society Practice Guidelines
+effective_from: "2024-01-01"

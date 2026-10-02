@@ -1,0 +1,35 @@
+id: HIK-003
+version: 1.0.0
+status: active
+title: Mountain Ridgeline Gale Force Wind and Blow-Off Danger
+category: hiking
+activities:
+  - hiking
+  - trekking
+  - climbing
+severity: high
+priority: 70
+conditions:
+  any:
+    - field: wind_speed_10m
+      operator: ">="
+      value: 50.0
+    - field: wind_gusts_10m
+      operator: ">="
+      value: 65.0
+evidence:
+  - wind_speed_10m
+  - wind_gusts_10m
+decision: >-
+  Avoid knife-edge traverses, exposed summit scrambles, and cliffside trails. Seek sheltered leeward slopes
+  and anchor all personal gear, packs, and emergency bivy shelters.
+rationale: >-
+  Winds exceeding 50 km/h strip bodily heat 10 times faster than calm air and generate sufficient aerodynamic drag
+  to physically blow adult hikers off balance along narrow mountain precipices.
+tags:
+  - hiking
+  - mountain-winds
+  - gale
+overrides: []
+source: British Mountaineering Council (BMC) High Mountain Safety Guide
+effective_from: "2024-01-01"

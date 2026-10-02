@@ -1,0 +1,43 @@
+id: HIK-001
+version: 1.0.0
+status: active
+title: Mountain Peak and Exposed Ridge Lightning Hazard
+category: hiking
+activities:
+  - hiking
+  - trekking
+  - mountaineering
+severity: extreme
+priority: 85
+conditions:
+  any:
+    - field: weather_code
+      operator: in
+      value:
+        - 95
+        - 96
+        - 99
+    - all:
+        - field: precipitation_probability
+          operator: ">="
+          value: 70
+        - field: wind_gusts_10m
+          operator: ">="
+          value: 40.0
+evidence:
+  - weather_code
+  - precipitation_probability
+  - wind_gusts_10m
+decision: >-
+  Turn back or descend immediately below tree line. Avoid summits, ridges, metal via-ferrata cables, and shallow
+  caves. Descend to the lowest possible terrain and assume lightning-safe crouch if caught in the open.
+rationale: >-
+  Hikers above the tree line or on exposed ridges act as primary elevation strike points for ground-seeking lightning,
+  and ground currents travel up to 30 meters through wet granite terrain.
+tags:
+  - hiking
+  - alpine
+  - lightning
+overrides: []
+source: Alpine Safety Council & Mountain Rescue Association
+effective_from: "2024-01-01"

@@ -1,0 +1,36 @@
+id: TRV-002
+version: 1.0.0
+status: active
+title: Highway Bridge Crosswinds and High-Sided Vehicle Rollover Risk
+category: travel
+activities:
+  - travel
+  - driving
+  - highway_transit
+severity: moderate
+priority: 60
+conditions:
+  any:
+    - field: wind_speed_10m
+      operator: ">="
+      value: 45.0
+    - field: wind_gusts_10m
+      operator: ">="
+      value: 55.0
+evidence:
+  - wind_speed_10m
+  - wind_gusts_10m
+decision: >-
+  High-profile vehicles, RVs, freight haulers, and vehicles towing trailers should pull over safely or defer travel.
+  Passenger cars should maintain firm two-handed steering control when emerging from road cuts onto open viaducts.
+rationale: >-
+  Sustained crosswinds above 45 km/h on elevated bridges create intense overturning aerodynamic moments on large surface
+  cargo bodies, causing lane drift and catastrophic tip-overs.
+tags:
+  - travel
+  - crosswind
+  - highway
+  - bridge
+overrides: []
+source: Federal Motor Carrier Safety Administration (FMCSA) Advisory
+effective_from: "2024-01-01"
