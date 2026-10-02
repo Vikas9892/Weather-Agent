@@ -76,6 +76,27 @@ def no_sop_fallback_node(state: SafetyState) -> Dict[str, Any]:
     temp = weather.get("temperature_2m", "")
     temp_str = f"({temp}°C) " if temp != "" else ""
 
+    # Check if any candidate SOP was UNKNOWN due to missing evidence
+    missing_all = []
+    for ev in state.get("evaluated_sops", []):
+        if ev.get("missing_evidence"):
+            missing_all.extend(ev["missing_evidence"])
+
+    if missing_all:
+        unique_missing = sorted(list(set(missing_all)))
+        response_msg = (
+            f"Weather data for {loc_name} {temp_str}is missing required metrics ({', '.join(unique_missing)}) "
+            f"needed to definitively evaluate safety policies for '{activity}'. "
+            f"Our system cannot certify conditions as safe without complete evidence. Please exercise caution."
+        )
+        return {
+            "selected_sop": None,
+            "policy_decision": None,
+            "response": response_msg,
+            "safety_status": "UNCERTAIN",
+            "safety_reason": f"Required meteorological metrics missing: {unique_missing}",
+        }
+
     response_msg = (
         f"We evaluated live weather for {loc_name} {temp_str}and checked our policy registry, "
         f"but have no applicable Standard Operating Procedure (SOP) safety policy covering '{activity}'. "
@@ -88,3 +109,4 @@ def no_sop_fallback_node(state: SafetyState) -> Dict[str, Any]:
         "safety_status": "APPROVED",
         "safety_reason": "No SOP matched; honest boundary response formulated.",
     }
+

@@ -4,21 +4,21 @@ import json
 import logging
 import os
 import re
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from pydantic import BaseModel, Field
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Known activity categories and common aliases for normalization
+# Canonical activity categories
 ACTIVITY_SYNONYMS = {
+    "playground": ["monkey bars", "jungle gym", "swings", "slides", "play with kid", "take my kid to the park", "playground"],
+    "picnic": ["sandwiches", "spreading a blanket", "lunch basket", "picnic", "outing", "bbq", "barbecue", "lawn games", "gathering"],
+    "hiking": ["hike", "hiking", "trek", "trekking", "backpacking", "climbing", "climb", "mountaineering", "pass"],
     "cycling": ["cycle", "cycling", "bike", "biking", "bicycle", "two-wheeler", "motorcycle", "scooter"],
     "running": ["run", "running", "jog", "jogging", "sprint"],
     "exercise": ["workout", "exercise", "training", "fitness", "calisthenics", "sports"],
-    "hiking": ["hike", "hiking", "trek", "trekking", "backpacking", "climbing", "mountaineering"],
-    "picnic": ["picnic", "outing", "bbq", "barbecue", "lawn games", "gathering"],
-    "playground": ["park", "playground", "play with kid", "take my kid to the park", "swings", "slides"],
     "travel": ["drive", "driving", "commute", "road trip", "highway", "travel"],
     "stroll": ["walk", "walking", "stroll", "stroller"],
 }
@@ -28,48 +28,85 @@ class QueryIntent(BaseModel):
     """Structured intent parsed from natural language user query."""
     activity: str = Field(default="general_outdoor", description="Normalized activity name")
     location: Optional[str] = Field(None, description="Extracted city or region name")
-    time: Optional[str] = Field(None, description="Extracted time window (e.g. today, evening, 5pm)")
+    time: Optional[str] = Field(None, description="Extracted time window")
     raw_query: str = ""
 
 
 class LLMGateway:
     """
-    LLM Gateway powered by LiteLLM with deterministic semantic fallback.
-    The LLM converts language to structured intent and structured decisions into natural language.
-    The LLM NEVER determines safety facts, SOP applicability, or thresholds.
+    Unified LLM Gateway supporting OpenAI (GPT-4o-mini), Google Gemini Flash, and xAI Grok.
+    LiteLLM abstracts the provider interfaces. The LLM translates natural language into structured
+    intents and explains deterministic decisions. It NEVER determines safety rules or thresholds.
     """
 
-    def __init__(self, model_name: Optional[str] = None):
-        self.model = model_name or settings.LLM_MODEL or "gpt-4o-mini"
-        self._api_key = settings.LLM_API_KEY or settings.OPENAI_API_KEY or os.environ.get("OPENAI_API_KEY")
+    def __init__(self, preferred_model: Optional[str] = None):
+        self.preferred_model = preferred_model or settings.LLM_MODEL or "gpt-4o-mini"
 
-    def _has_api_key(self) -> bool:
-        return bool(self._api_key and not self._api_key.startswith("mock") and len(self._api_key) > 5)
+    def get_active_model_and_key(self) -> Tuple[str, Optional[str]]:
+        """
+        Dynamically selects the active model and corresponding API key among:
+        1. Gemini Flash (gemini/gemini-2.0-flash, gemini/gemini-1.5-flash)
+        2. xAI Grok (xai/grok-beta, xai/grok-2)
+        3. OpenAI (gpt-4o-mini, gpt-4o)
+        """
+        req_model = self.preferred_model.lower()
+
+        # 1. Gemini requested
+        if "gemini" in req_model:
+            gemini_key = settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
+            if gemini_key and not gemini_key.startswith("your_"):
+                model_tag = self.preferred_model if self.preferred_model.startswith("gemini/") else f"gemini/{self.preferred_model}"
+                return model_tag, gemini_key
+
+        # 2. Grok / xAI requested
+        if "grok" in req_model or "xai" in req_model:
+            grok_key = settings.XAI_API_KEY or settings.GROK_API_KEY or os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY")
+            if grok_key and not grok_key.startswith("your_"):
+                model_tag = "xai/grok-beta" if not self.preferred_model.startswith("xai/") else self.preferred_model
+                return model_tag, grok_key
+
+        # 3. OpenAI requested
+        openai_key = settings.OPENAI_API_KEY or settings.LLM_API_KEY or os.environ.get("OPENAI_API_KEY")
+        if openai_key and not openai_key.startswith("mock") and not openai_key.startswith("your_"):
+            return self.preferred_model, openai_key
+
+        # Fallback chain: check if any provider key is active
+        gemini_key = settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
+        if gemini_key and not gemini_key.startswith("your_"):
+            return "gemini/gemini-2.0-flash", gemini_key
+
+        grok_key = settings.XAI_API_KEY or settings.GROK_API_KEY or os.environ.get("XAI_API_KEY")
+        if grok_key and not grok_key.startswith("your_"):
+            return "xai/grok-beta", grok_key
+
+        return self.preferred_model, None
+
+    def has_active_llm(self) -> bool:
+        _, key = self.get_active_model_and_key()
+        return bool(key and len(key) > 5)
 
     def understand_query(self, query: str) -> QueryIntent:
-        """
-        Parses user query into structured intent (activity, location, time).
-        Uses LiteLLM if API key available, else deterministic regex/lexical matching.
-        """
-        if self._has_api_key():
+        """Parses user query into structured intent (activity, location, time)."""
+        model, api_key = self.get_active_model_and_key()
+
+        if api_key and len(api_key) > 5:
             try:
                 import litellm
-                prompt = f"""You are a query parser for an outdoor safety advisor.
-Extract the activity, location, and time window from the user query.
-Return ONLY valid JSON matching this schema:
-{{"activity": "<normalized_activity_or_general_outdoor>", "location": "<city_or_null>", "time": "<time_or_null>"}}
-
-Query: "{query}"
-JSON:"""
+                prompt = (
+                    "You are a query parser for an outdoor activity safety system. "
+                    "Extract the activity, location, and time window from the query. "
+                    "Return ONLY valid JSON matching this schema:\n"
+                    '{"activity": "<normalized_activity_or_general_outdoor>", "location": "<city_or_null>", "time": "<time_or_null>"}\n\n'
+                    f'Query: "{query}"\nJSON:'
+                )
                 response = litellm.completion(
-                    model=self.model,
+                    model=model,
                     messages=[{"role": "user", "content": prompt}],
-                    api_key=self._api_key,
+                    api_key=api_key,
                     temperature=0.0,
                     max_tokens=150,
                 )
                 text = response.choices[0].message.content.strip()
-                # Parse JSON block
                 clean_json = re.sub(r"^```json\s*|\s*```$", "", text, flags=re.MULTILINE).strip()
                 data = json.loads(clean_json)
                 return QueryIntent(
@@ -79,13 +116,11 @@ JSON:"""
                     raw_query=query,
                 )
             except Exception as e:
-                logger.warning(f"LiteLLM understand_query fallback due to error: {e}")
+                logger.warning(f"LiteLLM ({model}) understand_query fallback due to error: {e}")
 
-        # Deterministic rule-based extractor
         return self._rule_based_understand(query)
 
     def normalize_activity(self, raw_activity: str) -> str:
-        """Normalizes free-form activity words to standard canonical categories."""
         if not raw_activity:
             return "general_outdoor"
         act_lower = raw_activity.lower().strip()
@@ -97,20 +132,17 @@ JSON:"""
     def _rule_based_understand(self, query: str) -> QueryIntent:
         q_lower = query.lower()
 
-        # Identify activity
         detected_activity = "general_outdoor"
         for canonical, synonyms in ACTIVITY_SYNONYMS.items():
             if any(syn in q_lower for syn in synonyms):
                 detected_activity = canonical
                 break
 
-        # Identify location (e.g. "in Bhopal", "to Bhopal", "near Berlin", "in Tokyo")
         location = None
         loc_match = re.search(r"\b(?:in|at|near|for|around)\s+([A-Z][a-zA-Z\s]+?)(?:\s+(?:today|tomorrow|now|this|at|\?|$))", query)
         if loc_match:
             location = loc_match.group(1).strip()
         else:
-            # Check common capital words or known cities
             words = query.split()
             for w in words:
                 clean_w = re.sub(r"[^\w]", "", w)
@@ -118,7 +150,6 @@ JSON:"""
                     location = clean_w
                     break
 
-        # Identify time
         time_window = None
         for t in ["this evening", "evening", "tomorrow", "today", "afternoon", "morning", "night", "now"]:
             if t in q_lower:
@@ -145,10 +176,7 @@ JSON:"""
         rationale: Optional[str],
         supporting_sops: Optional[list] = None,
     ) -> str:
-        """
-        Generates grounded natural language explanation of the deterministic decision.
-        """
-        # If no SOP applies
+        """Generates natural language explanation grounded strictly in the deterministic decisions."""
         if not selected_sop:
             return (
                 f"We checked the weather in {location_name} ({self._format_weather_summary(weather_summary)}), "
@@ -164,14 +192,15 @@ JSON:"""
         rat = rationale or selected_sop.get("rationale", "")
 
         weather_str = self._format_weather_summary(weather_summary)
+        model, api_key = self.get_active_model_and_key()
 
-        if self._has_api_key():
+        if api_key and len(api_key) > 5:
             try:
                 import litellm
                 system_prompt = (
-                    "You are the voice of the Outdoor Safety Agent. You explain safety decisions to users. "
+                    "You are the voice of the Outdoor Safety Agent. You explain safety decisions to users.\n"
                     "CRITICAL CONSTRAINTS:\n"
-                    "1. You must explicitly name the cited SOP ID (e.g. HAZ-001 or CYC-001).\n"
+                    f"1. You must explicitly name the cited SOP ID: {sop_id}.\n"
                     "2. You must strictly cite ONLY the weather numbers provided in context.\n"
                     "3. You must NOT invent advice, downplay severity, or contradict the policy decision.\n"
                     f"4. Severity is {sev}. Decision is: {act_dec}.\n"
@@ -187,18 +216,18 @@ JSON:"""
                     "Write a clear, empathetic 2-3 sentence response communicating the safety decision and citing the exact SOP."
                 )
                 resp = litellm.completion(
-                    model=self.model,
+                    model=model,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
                     ],
-                    api_key=self._api_key,
+                    api_key=api_key,
                     temperature=0.2,
                     max_tokens=250,
                 )
                 return resp.choices[0].message.content.strip()
             except Exception as e:
-                logger.warning(f"LiteLLM response generation fallback: {e}")
+                logger.warning(f"LiteLLM ({model}) response generation fallback: {e}")
 
         # Deterministic high-quality template response
         return (

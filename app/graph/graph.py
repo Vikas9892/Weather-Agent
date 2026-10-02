@@ -67,7 +67,8 @@ class SafetyAgentGraph:
         builder = StateGraph(SafetyState)
 
         # 1. Register Nodes
-        builder.add_node("load_session", load_session)
+        builder.add_node("load_session", lambda s: load_session(s, self.memory))
+
         builder.add_node(
             "understand_query",
             lambda s: understand_query(s, self.llm_gateway),

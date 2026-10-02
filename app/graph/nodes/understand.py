@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from app.graph.state import SafetyState
 from app.llm.gateway import LLMGateway
-from app.memory.session import session_memory_store
+from app.memory.session import SessionMemoryStore, session_memory_store
 
 
-def load_session(state: SafetyState) -> Dict[str, Any]:
+def load_session(state: SafetyState, memory: Optional[SessionMemoryStore] = None) -> Dict[str, Any]:
     """Retrieves previous turn context from session memory if available."""
     session_id = state.get("session_id", "default_session")
-    history = session_memory_store.get_session_facts(session_id)
+    store = memory or session_memory_store
+    history = store.get_session_facts(session_id)
     updates: Dict[str, Any] = {"session_id": session_id}
 
-    # If the user previously specified a location and this query lacks one, carry it forward
+    # If the user previously specified a location or activity, carry forward
     if history.get("last_location"):
         updates["location_query"] = history["last_location"]
     if history.get("last_activity"):
@@ -27,9 +28,14 @@ def understand_query(state: SafetyState, llm_gateway: LLMGateway) -> Dict[str, A
     intent = llm_gateway.understand_query(query)
 
     updates: Dict[str, Any] = {
-        "activity": intent.activity,
         "requested_time": intent.time,
     }
+
+    # If activity was not found in current query, preserve session activity
+    if intent.activity == "general_outdoor" and state.get("activity") and state["activity"] != "general_outdoor":
+        updates["activity"] = state["activity"]
+    else:
+        updates["activity"] = intent.activity
 
     # If location was found in current query, use it; otherwise preserve existing session location
     if intent.location:
