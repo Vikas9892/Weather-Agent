@@ -8,12 +8,22 @@ root_dir = Path(__file__).resolve().parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.chat import router as chat_router
 
 app = FastAPI(
     title="Outdoor Safety Agent API",
     description="Deterministic safety chatbot backed by live Open-Meteo weather and 25 safety SOPs",
     version="1.0.0",
+)
+
+# Enable CORS for local development and integrations
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register safety chat API routes
