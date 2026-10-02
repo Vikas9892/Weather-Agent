@@ -1,8 +1,7 @@
 import pytest
-from pathlib import Path
-from backend.app.policy.loader import PolicyRegistry
-from backend.app.policy.validator import validate_policy_set
-from backend.app.policy.models import SOP, Condition, AllConditions, AnyConditions
+from app.policy.loader import PolicyRegistry
+from app.policy.validator import validate_policy_set
+from app.policy.models import SOP, Condition, AllConditions, AnyConditions
 
 
 def test_policies_load_and_validate():

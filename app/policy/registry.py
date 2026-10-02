@@ -2,12 +2,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 import yaml
 
-try:
-    from .models import SOP
-    from .validator import PolicyValidationError, validate_policy_set
-except ImportError:
-    from app.policy.models import SOP
-    from app.policy.validator import PolicyValidationError, validate_policy_set
+from app.policy.models import SOP
+from app.policy.validator import PolicyValidationError, validate_policy_set
 
 
 class PolicyRegistry:
@@ -42,7 +38,7 @@ class PolicyRegistry:
         return [
             p
             for p in self._policies.values()
-            if any(act_lower == a.lower() for a in p.activities)
+            if any(act_lower == a.lower() or a.lower() == "all" for a in p.activities)
         ]
 
     def load(self, directory: Union[str, Path]) -> int:
@@ -76,13 +72,11 @@ class PolicyRegistry:
             except Exception as e:
                 raise PolicyValidationError(f"Error loading {yml_file.name}: {e}") from e
 
-        # Validate the entire policy set (no duplicates, broken overrides, etc.)
         is_valid, errors = validate_policy_set(loaded_policies)
         if not is_valid:
             error_msg = "\n".join(errors)
             raise PolicyValidationError(f"Policy set validation failed:\n{error_msg}")
 
-        # Register all valid policies
         self.clear()
         for p in loaded_policies:
             self.register(p)
