@@ -272,8 +272,53 @@ class PolicyEvaluator:
             explanation=f"Policy evaluated to {res.value}. Traces: {'; '.join(traces)}",
         )
 
+    def select_candidates(
+        self,
+        policies: List[SOP],
+        activity: Optional[str] = None,
+        category: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> List[SOP]:
+        """
+        Pre-filters candidate SOPs before deterministic evaluation based on activity,
+        category, and tags. Hazard policies ('hazards' category or 'all' activity) are
+        always retained as candidate safeguards.
+        """
+        if not activity and not category and not tags:
+            return policies
+
+        candidates: List[SOP] = []
+        act_lower = activity.lower().strip() if activity else None
+        cat_lower = category.lower().strip() if category else None
+        tags_set = {t.lower().strip() for t in tags} if tags else set()
+
+        for p in policies:
+            # 1. Systemic hazards always qualify as candidate safeguards
+            if p.category.lower() == "hazards" or any(a.lower() == "all" for a in p.activities):
+                candidates.append(p)
+                continue
+
+            # 2. Activity match
+            if act_lower and any(act_lower == a.lower() for a in p.activities):
+                candidates.append(p)
+                continue
+
+            # 3. Category match
+            if cat_lower and p.category.lower() == cat_lower:
+                candidates.append(p)
+                continue
+
+            # 4. Tag overlap
+            if tags_set and any(t.lower() in tags_set for t in p.tags):
+                candidates.append(p)
+                continue
+
+        # Preserve deterministic order by ID
+        return sorted(list({p.id: p for p in candidates}.values()), key=lambda x: x.id)
+
     def evaluate_all(
         self, policies: List[SOP], context: Dict[str, Any]
     ) -> List[PolicyEvaluation]:
         """Evaluates a collection of candidate policies."""
         return [self.evaluate(p, context) for p in policies]
+
