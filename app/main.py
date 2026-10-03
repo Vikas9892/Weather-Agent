@@ -39,6 +39,12 @@ if frontend_dir.exists():
         """Serves the main interactive outdoor safety chat frontend."""
         return FileResponse(str(frontend_dir / "index.html"))
 
+    @app.get("/favicon.ico", include_in_schema=False)
+    @app.get("/favicon.svg", include_in_schema=False)
+    def serve_favicon():
+        """Serves the custom outdoor safety shield-and-mountain favicon."""
+        return FileResponse(str(frontend_dir / "favicon.svg"), media_type="image/svg+xml")
+
 
 @app.get("/health")
 def health_check():

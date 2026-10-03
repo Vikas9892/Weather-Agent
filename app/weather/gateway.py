@@ -19,6 +19,8 @@ class WeatherGateway:
     for cross-validation and discrepancy detection when their API keys are present.
     """
 
+    _geocode_cache: Dict[str, Location] = {}
+
     def __init__(
         self,
         primary_provider: Optional[OpenMeteoProvider] = None,
@@ -65,9 +67,14 @@ class WeatherGateway:
         if self._mock_location is not None:
             return self._mock_location, None
 
+        cache_key = location_query.strip().lower()
+        if cache_key in WeatherGateway._geocode_cache:
+            return WeatherGateway._geocode_cache[cache_key], None
+
         # 1. Primary: Open-Meteo
         loc = self.primary.geocode(location_query)
         if loc:
+            WeatherGateway._geocode_cache[cache_key] = loc
             return loc, None
 
         # 2. Fallbacks: OpenWeather & WeatherAPI

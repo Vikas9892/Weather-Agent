@@ -1,7 +1,7 @@
 id: REC-001
 version: 1.0.0
 status: active
-title: Unfavorable Damp Ground and Drizzle Risk for Picnics
+title: "Picnic Multi-Factor Suitability: Damp Ground and Elevated Rain Risk"
 category: recreation
 activities:
   - picnic
@@ -22,15 +22,16 @@ evidence:
   - precipitation
   - precipitation_probability
 decision: >-
-  Picnic conditions are suboptimal. Bring a waterproof tarpaulin or ground-mat, identify nearby covered park pavilions,
+  Picnic conditions are suboptimal or conditionally suitable. Bring a waterproof tarpaulin or ground-mat, identify nearby covered park pavilions,
   and pack weather-resistant food containers. Have an indoor contingency plan if rain chances materialize.
 rationale: >-
-  Even modest precipitation or elevated rain probability (>50%) leads to water-soaked turf, soil mud saturation,
+  Multi-factor evaluation: Even modest precipitation or elevated rain probability (>50%) leads to water-soaked turf, soil moisture saturation,
   and ruined paper goods, diminishing outdoor dining comfort.
 tags:
   - picnic
   - recreation
+  - multi-factor-suitability
   - damp-ground
 overrides: []
-source: Parks and Recreation Community Safety Guidelines
+source: project_defined
 effective_from: "2024-01-01"

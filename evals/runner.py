@@ -40,7 +40,7 @@ def run_live_open_meteo_eval() -> Dict[str, Any]:
     """
     print("==================================================")
     print("PHASE 1: LIVE OPEN-METEO TELEMETRY EVALUATION")
-    print("Querying live Open-Meteo endpoint (zero mocks, real weather)...")
+    print("Querying live Open-Meteo endpoint...")
     print("==================================================")
 
     gw = WeatherGateway()

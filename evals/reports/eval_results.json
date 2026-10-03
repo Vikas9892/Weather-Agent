@@ -3,7 +3,7 @@
   "passed": 55,
   "failed": 0,
   "pass_rate": 100.0,
-  "duration_seconds": 5.8,
+  "duration_seconds": 4.67,
   "categories": {
     "clear_sop": {
       "total": 10,

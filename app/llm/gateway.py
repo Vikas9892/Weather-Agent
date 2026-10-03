@@ -41,6 +41,9 @@ class LLMGateway:
     intents and explains deterministic decisions. It NEVER determines safety rules or thresholds.
     """
 
+    _circuit_open_until: float = 0.0
+    _model_cooldowns: Dict[str, float] = {}
+
     def __init__(self, preferred_model: Optional[str] = None, use_deterministic_only: bool = False):
         self.preferred_model = preferred_model or settings.LLM_MODEL or "gpt-4o-mini"
         self.use_deterministic_only = use_deterministic_only
@@ -89,6 +92,7 @@ class LLMGateway:
         Builds a prioritized list of (model_tag, api_key) pairs:
         1. Preferred model (primary)
         2. Backup models configured with valid keys
+        Excludes models currently in a temporary failure cooldown.
         """
         chain: List[Tuple[str, str]] = []
         seen_tags = set()
@@ -96,9 +100,12 @@ class LLMGateway:
         def is_valid_key(k: Optional[str]) -> bool:
             return bool(k and len(k) > 5 and not k.startswith("your_") and not k.startswith("mock-"))
 
+        def is_model_available(tag: str) -> bool:
+            return time.time() >= LLMGateway._model_cooldowns.get(tag.lower(), 0.0)
+
         # Primary model
         primary_model, primary_key = self.get_active_model_and_key()
-        if is_valid_key(primary_key):
+        if is_valid_key(primary_key) and is_model_available(primary_model):
             chain.append((primary_model, primary_key))
             seen_tags.add(primary_model.lower())
 
@@ -119,13 +126,14 @@ class LLMGateway:
 
         for tag, key in candidates:
             if tag.lower() not in seen_tags and tag.lower() != primary_model.lower():
-                chain.append((tag, key))
-                seen_tags.add(tag.lower())
+                if is_model_available(tag):
+                    chain.append((tag, key))
+                    seen_tags.add(tag.lower())
 
         return chain
 
     def has_active_llm(self) -> bool:
-        if self.use_deterministic_only:
+        if self.use_deterministic_only or time.time() < LLMGateway._circuit_open_until:
             return False
         chain = self.get_model_chain()
         return len(chain) > 0
@@ -135,15 +143,15 @@ class LLMGateway:
         messages: List[Dict[str, str]],
         temperature: float = 0.2,
         max_tokens: int = 300,
-        max_retries: int = 5,
-        base_delay: float = 0.4,
-        max_delay: float = 5.0,
+        max_retries: int = 2,
+        base_delay: float = 0.2,
+        max_delay: float = 1.0,
     ) -> Optional[str]:
         """
-        Executes LiteLLM completion with exponential backoff and full jitter.
-        If the active model fails 5 times, seamlessly transitions to the next backup model in chain.
+        Executes LiteLLM completion with fast failover across models in chain.
+        If the active model fails, seamlessly transitions to the next backup model in chain.
         """
-        if self.use_deterministic_only:
+        if self.use_deterministic_only or time.time() < LLMGateway._circuit_open_until:
             return None
 
         chain = self.get_model_chain()
@@ -151,6 +159,8 @@ class LLMGateway:
             return None
 
         import litellm
+        litellm.num_retries = 0
+        litellm.request_timeout = 3.0
 
         NON_RETRIABLE_INDICATORS = [
             "authenticationerror",
@@ -164,6 +174,12 @@ class LLMGateway:
             "permission_denied",
             "not supported for generatecontent",
             "billing",
+            "quota exceeded",
+            "resource_exhausted",
+            "exceeded your current quota",
+            "generaterequestsperday",
+            "quotafailure",
+            "rate_limit_exceeded",
         ]
 
         for model_tag, api_key in chain:
@@ -176,7 +192,8 @@ class LLMGateway:
                         api_key=api_key,
                         temperature=temperature,
                         max_tokens=max_tokens,
-                        timeout=8.0,
+                        timeout=4.0,
+                        num_retries=0,
                     )
                     content = response.choices[0].message.content
                     if content and content.strip():
@@ -185,15 +202,16 @@ class LLMGateway:
                     err_str = str(e).lower()
                     exc_name = type(e).__name__.lower()
 
-                    # Immediate failover for non-retriable errors (zero credits, bad key, model not found)
+                    # Immediate failover for non-retriable errors (zero credits, bad key, model not found, quota exhausted)
                     if any(term in err_str or term in exc_name for term in NON_RETRIABLE_INDICATORS):
                         logger.warning(
                             f"Non-retriable error on model '{model_tag}': {e}. "
-                            f"Failing over to next model immediately."
+                            f"Failing over to next model immediately and cooling down model for 300s."
                         )
+                        LLMGateway._model_cooldowns[model_tag.lower()] = time.time() + 300.0
                         break
 
-                    # Transient error (429 rate limit, 503 server overload, timeout) -> Exponential Backoff + Jitter
+                    # Transient error (burst 429 rate limit, 503 server overload, timeout) -> Exponential Backoff + Jitter
                     backoff_cap = min(max_delay, base_delay * (2 ** (attempt - 1)))
                     sleep_time = random.uniform(0.1, backoff_cap)
 
@@ -207,14 +225,26 @@ class LLMGateway:
                     else:
                         logger.error(
                             f"Model '{model_tag}' exhausted all {max_retries} retries. "
-                            f"Failing over to backup model in chain..."
+                            f"Failing over to backup model in chain and cooling down for 300s."
                         )
+                        LLMGateway._model_cooldowns[model_tag.lower()] = time.time() + 300.0
 
-        logger.warning("All LLM models in fallback chain failed. Transitioning to deterministic template.")
+        # Open circuit breaker for 300 seconds if all models failed
+        LLMGateway._circuit_open_until = time.time() + 300.0
+        logger.warning("All LLM models in fallback chain failed. Transitioning to deterministic template and opening circuit breaker for 300s.")
         return None
 
     def understand_query(self, query: str) -> QueryIntent:
         """Parses user query into structured intent (activity, location, time)."""
+        # Fast path 1: Instant deterministic regex/dictionary parsing (0.1ms)
+        fast_intent = self._rule_based_understand(query)
+        if fast_intent.activity != "general_outdoor" and fast_intent.location:
+            return fast_intent
+
+        # Fast path 2: If circuit breaker is open or test mode, skip external LLM
+        if self.use_deterministic_only or time.time() < LLMGateway._circuit_open_until:
+            return fast_intent
+
         prompt = (
             "You are a query parser for an outdoor activity safety system. "
             "Extract the activity, location, and time window from the query. "
@@ -242,7 +272,7 @@ class LLMGateway:
             except Exception as e:
                 logger.warning(f"Error parsing JSON from LLM: {e}")
 
-        return self._rule_based_understand(query)
+        return fast_intent
 
     def normalize_activity(self, raw_activity: str) -> str:
         if not raw_activity:
@@ -263,16 +293,21 @@ class LLMGateway:
                 break
 
         location = None
-        loc_match = re.search(r"\b(?:in|at|near|for|around)\s+([A-Z][a-zA-Z\s]+?)(?:\s+(?:today|tomorrow|now|this|at|\?|$))", query)
+        loc_match = re.search(r"\b(?:in|at|near|for|around)\s+([A-Z][a-zA-Z\s]+?)(?:\s+(?:today|tomorrow|right\s+now|now|this|at|\?|$))", query, re.IGNORECASE)
         if loc_match:
             location = loc_match.group(1).strip()
         else:
             words = query.split()
             for w in words:
                 clean_w = re.sub(r"[^\w]", "", w)
-                if clean_w in ["Bhopal", "Delhi", "Mumbai", "London", "Berlin", "Paris", "Bengaluru", "Chennai"]:
+                if clean_w in ["Bhopal", "Delhi", "Mumbai", "London", "Berlin", "Paris", "Bengaluru", "Chennai", "Kolkata", "Indore", "Agra", "Shimla", "Manali", "Shillong", "Kanyakumari"]:
                     location = clean_w
                     break
+
+        if location:
+            for stop in ["right now", "now", "today", "tomorrow", "this evening", "this morning", "tonight", "right"]:
+                if location.lower().endswith(" " + stop):
+                    location = location[:-len(stop) - 1].strip()
 
         time_window = None
         for t in ["this evening", "evening", "tomorrow", "today", "afternoon", "morning", "night", "now"]:
